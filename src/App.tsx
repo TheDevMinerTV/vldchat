@@ -1,13 +1,17 @@
-import { For, Show, createSignal, onCleanup } from 'solid-js';
-import './App.css';
-import { VeilidRoutingContext, VeilidStateNetwork, veilidClient } from './pkg/veilid_wasm';
-import { VEILID_CORE_CONFIG, VEILID_WASM_CONFIG } from './veilid';
+import { For, Show, createSignal, onCleanup } from "solid-js";
+import "./App.css";
+import {
+	VeilidRoutingContext,
+	VeilidStateNetwork,
+	veilidClient,
+} from "./pkg/veilid_wasm";
+import { VEILID_CORE_CONFIG, VEILID_WASM_CONFIG } from "./veilid";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 type Message = {
-	sender?: string;
+	sender: string | null;
 	content: string;
 };
 
@@ -20,8 +24,8 @@ function App() {
 
 	let ctx: VeilidRoutingContext | null = null;
 
-	const [targetNodeId, setTargetNodeId] = createSignal<string>('');
-	const [input, setInput] = createSignal<string>('');
+	const [targetNodeId, setTargetNodeId] = createSignal<string>("");
+	const [input, setInput] = createSignal<string>("");
 	const [messages, setMessages] = createSignal<Message[]>([]);
 
 	const connect = async () => {
@@ -30,11 +34,11 @@ function App() {
 		await veilidClient.initializeCore(VEILID_WASM_CONFIG);
 		await veilidClient.startupCore((update) => {
 			switch (update.kind) {
-				case 'Network':
+				case "Network":
 					setNetwork(update);
 					break;
 
-				case 'AppMessage':
+				case "AppMessage":
 					try {
 						const raw = decoder.decode(update.message);
 						const msg = JSON.parse(raw) as Message;
@@ -45,11 +49,11 @@ function App() {
 					}
 					break;
 
-				case 'Attachment':
+				case "Attachment":
 					setReady(update.public_internet_ready);
 					break;
 
-				case 'Log':
+				case "Log":
 					return;
 			}
 
@@ -64,11 +68,12 @@ function App() {
 
 		ctx = VeilidRoutingContext.create().withSafety({
 			Safe: {
-				stability: 'Reliable',
+				stability: "Reliable",
 				hop_count: 4,
-				sequencing: 'EnsureOrdered'
-			}
+				sequencing: "EnsureOrdered",
+			},
 		});
+		ctx;
 
 		setConnected(true);
 	};
@@ -86,16 +91,27 @@ function App() {
 
 	return (
 		<div style={{}}>
-			<div style={{ display: 'flex', gap: '1rem', 'align-items': 'center' }}>
-				<span>{connected() ? 'Connected' : 'Disconnected'}</span>
-				<button onClick={connected() ? disconnect : connect}>{connected() ? 'Disconnect' : 'Connect'}</button>
+			<div style={{ display: "flex", gap: "1rem", "align-items": "center" }}>
+				<span>{connected() ? "Connected" : "Disconnected"}</span>
+				<button onClick={connected() ? disconnect : connect}>
+					{connected() ? "Disconnect" : "Connect"}
+				</button>
 			</div>
 			<div>
 				<Show when={nodeId()}>
 					{(nodeId) => (
-						<div style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center' }}>
+						<div
+							style={{
+								display: "flex",
+								gap: "0.5rem",
+								"align-items": "center",
+							}}
+						>
 							<p>Node ID: {nodeId()}</p>
-							<button class='square' onClick={() => navigator.clipboard.writeText(nodeId())}>
+							<button
+								class="square"
+								onClick={() => navigator.clipboard.writeText(nodeId())}
+							>
 								📋
 							</button>
 						</div>
@@ -104,10 +120,16 @@ function App() {
 
 				<Show when={network()}>
 					{(network) => (
-						<div style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center' }}>
-							<p style={{ flex: '1' }}>{network().bps_down} bytes/s down</p>
-							<p style={{ flex: '1' }}>{network().bps_up} bytes/s up</p>
-							<p style={{ flex: '1' }}>{network().peers.length} peers</p>
+						<div
+							style={{
+								display: "flex",
+								gap: "0.5rem",
+								"align-items": "center",
+							}}
+						>
+							<p style={{ flex: "1" }}>{network().bps_down} bytes/s down</p>
+							<p style={{ flex: "1" }}>{network().bps_up} bytes/s up</p>
+							<p style={{ flex: "1" }}>{network().peers.length} peers</p>
 
 							{/* <pre>{JSON.stringify(network(), null, 2)}</pre> */}
 						</div>
@@ -120,34 +142,40 @@ function App() {
 						onsubmit={async (e) => {
 							e.preventDefault();
 
-							if (!targetNodeId() || !input() || !ctx || !ready() || sending()) return;
+							if (!targetNodeId() || !input() || !ctx || !ready() || sending())
+								return;
 
 							setSending(true);
 							try {
-								await ctx.appMessage(targetNodeId(), encoder.encode(JSON.stringify({ sender: nodeId()!, content: input() })));
+								await ctx.appMessage(
+									targetNodeId(),
+									encoder.encode(
+										JSON.stringify({ sender: nodeId()!, content: input() })
+									)
+								);
 							} finally {
 								setSending(false);
 							}
 
-							setInput('');
+							setInput("");
 						}}
 					>
 						<input
-							type='text'
+							type="text"
 							value={targetNodeId()}
 							onInput={(e) => setTargetNodeId(e.currentTarget.value)}
-							placeholder='Target Node ID'
+							placeholder="Target Node ID"
 							disabled={!ready() || sending()}
 						/>
 						<input
-							type='text'
+							type="text"
 							value={input()}
 							onInput={(e) => setInput(e.currentTarget.value)}
-							placeholder='Content'
+							placeholder="Content"
 							disabled={!ready() || sending()}
 						/>
 
-						<button type='submit'>Send</button>
+						<button type="submit">Send</button>
 					</form>
 				</div>
 			</Show>
@@ -155,7 +183,7 @@ function App() {
 				<For each={messages()}>
 					{(msg) => (
 						<p>
-							{msg.sender ?? 'Unknown'}: {msg.content}
+							{msg.sender ?? "Unknown"}: {msg.content}
 						</p>
 					)}
 				</For>
