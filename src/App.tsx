@@ -1,17 +1,19 @@
-import { For, Show, createSignal, onCleanup } from "solid-js";
+import { Show, Signal, createSignal, onCleanup } from "solid-js";
 import "./App.css";
+import { Conversations } from "./components/Conversations";
+import { Message } from "./lib/types";
+import { VEILID_CORE_CONFIG, VEILID_WASM_CONFIG } from "./lib/veilid";
 import {
 	VeilidRoutingContext,
 	VeilidStateNetwork,
 	veilidClient,
 } from "./pkg/veilid_wasm";
-import { VEILID_CORE_CONFIG, VEILID_WASM_CONFIG } from "./veilid";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-type Message = {
-	sender: string | null;
+type IncomingMessage = {
+	sender: string;
 	content: string;
 };
 
@@ -26,7 +28,9 @@ function App() {
 
 	const [targetNodeId, setTargetNodeId] = createSignal<string>("");
 	const [input, setInput] = createSignal<string>("");
-	const [messages, setMessages] = createSignal<Message[]>([]);
+	const [conversations, setConversations] = createSignal<
+		Map<string, Signal<Message[]>>
+	>(new Map());
 
 	const connect = async () => {
 		if (connected()) await disconnect();
@@ -41,9 +45,19 @@ function App() {
 				case "AppMessage":
 					try {
 						const raw = decoder.decode(update.message);
-						const msg = JSON.parse(raw) as Message;
+						const msg = JSON.parse(raw) as IncomingMessage;
 
-						setMessages((messages) => [...messages, msg]);
+						setConversations((prev) => {
+							const messages =
+								prev.get(msg.sender) ?? createSignal<Message[]>([]);
+
+							messages[1]((msgs) => [
+								...msgs,
+								{ timestamp: Date.now(), content: msg.content },
+							]);
+
+							return new Map(prev).set(msg.sender, messages);
+						});
 					} catch (error) {
 						console.error(error);
 					}
@@ -65,7 +79,6 @@ function App() {
 		setNodeId(id);
 
 		await veilidClient.attach();
-
 		ctx = VeilidRoutingContext.create().withSafety({
 			Safe: {
 				stability: "Reliable",
@@ -73,7 +86,6 @@ function App() {
 				sequencing: "EnsureOrdered",
 			},
 		});
-		ctx;
 
 		setConnected(true);
 	};
@@ -142,17 +154,28 @@ function App() {
 						onsubmit={async (e) => {
 							e.preventDefault();
 
-							if (!targetNodeId() || !input() || !ctx || !ready() || sending())
-								return;
+							const target = targetNodeId();
+							const content = input().trim();
+							if (!target || !content || !ctx || !ready() || sending()) return;
 
 							setSending(true);
 							try {
 								await ctx.appMessage(
 									targetNodeId(),
-									encoder.encode(
-										JSON.stringify({ sender: nodeId()!, content: input() })
-									)
+									encoder.encode(JSON.stringify({ sender: nodeId()!, content }))
 								);
+
+								setConversations((prev) => {
+									const messages =
+										prev.get(target) ?? createSignal<Message[]>([]);
+
+									messages[1]((msgs) => [
+										...msgs,
+										{ timestamp: Date.now(), content },
+									]);
+
+									return new Map(prev).set(target, messages);
+								});
 							} finally {
 								setSending(false);
 							}
@@ -175,19 +198,14 @@ function App() {
 							disabled={!ready() || sending()}
 						/>
 
-						<button type="submit">Send</button>
+						<button type="submit" disabled={!ready() || sending()}>
+							Send
+						</button>
 					</form>
 				</div>
 			</Show>
-			<div>
-				<For each={messages()}>
-					{(msg) => (
-						<p>
-							{msg.sender ?? "Unknown"}: {msg.content}
-						</p>
-					)}
-				</For>
-			</div>
+
+			<Conversations conversations={conversations} />
 		</div>
 	);
 }

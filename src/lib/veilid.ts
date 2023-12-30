@@ -1,4 +1,4 @@
-import { VeilidConfigInner, VeilidWASMConfig } from "./pkg/veilid_wasm.js";
+import { VeilidConfigInner, VeilidWASMConfig } from "../pkg/veilid_wasm.js";
 
 export const VEILID_WASM_CONFIG = {
 	logging: {
@@ -39,9 +39,9 @@ export const VEILID_CORE_CONFIG = {
 	network: {
 		connection_initial_timeout_ms: 2000,
 		connection_inactivity_timeout_ms: 60_000,
-		max_connections_per_ip4: 32,
-		max_connections_per_ip6_prefix_size: 64,
-		max_connections_per_ip6_prefix: 32,
+		max_connections_per_ip4: 64,
+		max_connections_per_ip6_prefix: 64,
+		max_connections_per_ip6_prefix_size: 128,
 		max_connection_frequency_per_min: 60,
 		client_allowlist_timeout_ms: 30_000,
 		reverse_connection_receipt_time_ms: 5_000,
@@ -56,10 +56,12 @@ export const VEILID_CORE_CONFIG = {
 
 				// FIXME: Commented out until they have a TLS certificate
 				// "wss://bootstrap.veilid.net:5150/ws",
+
+				"wss://bootstrap.hamade.chat:5150/ws",
 			],
-			limit_over_attached: 64,
-			limit_fully_attached: 32,
-			limit_attached_strong: 16,
+			limit_over_attached: 128,
+			limit_fully_attached: 64,
+			limit_attached_strong: 12,
 			limit_attached_good: 8,
 			limit_attached_weak: 4,
 		},
@@ -75,7 +77,7 @@ export const VEILID_CORE_CONFIG = {
 		dht: {
 			max_find_node_count: 20,
 			resolve_node_timeout_ms: 10_000,
-			resolve_node_count: 1,
+			resolve_node_count: 2,
 			resolve_node_fanout: 32,
 			get_value_timeout_ms: 10_000,
 			get_value_count: 3,
