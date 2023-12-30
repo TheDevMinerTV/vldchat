@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "vldchat.fullname" . }}
+  labels:
+    {{- include "vldchat.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "vldchat.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "vldchat.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          startupProbe:
+            initialDelaySeconds: 20
+            httpGet:
+              path: /
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+  # Argo Rollouts
+  revisionHistoryLimit: 10
+  strategy:
+    canary:
+      stableService: {{ include "vldchat.fullname" . }}
+      canaryService: {{ include "vldchat.fullname" . }}-canary
+      trafficRouting:
+        istio:
+          virtualService:
+            name: {{ include "vldchat.fullname" . }}
+            routes:
+              - primary
+      steps:
+        - setCanaryScale:
+            weight: 10
+        - setWeight: 10
+        - pause: {}

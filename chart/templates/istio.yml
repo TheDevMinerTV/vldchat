@@ -1,0 +1,53 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ include "vldchat.fullname" . }}
+  labels:
+    {{- include "vldchat.labels" . | nindent 4 }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - {{ .Values.service.host }}
+    {{- if .Values.service.ssl.enabled }}
+    - port:
+        number: {{ .Values.service.ssl.port }}
+        name: https
+        protocol: HTTPS
+      hosts:
+        - {{ .Values.service.host }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ include "vldchat.fullname" . }}
+    {{- end }}
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "vldchat.fullname" . }}
+  labels:
+    {{- include "vldchat.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.service.host }}
+  gateways:
+    - {{ include "vldchat.fullname" . }}
+  http:
+    - name: primary
+      route:
+        - weight: 100
+          destination:
+            host: {{ include "vldchat.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
+        - weight: 0
+          destination:
+            host: {{ include "vldchat.fullname" . }}-canary
+            port:
+              number: {{ .Values.service.port }}

@@ -1,0 +1,24 @@
+image:
+  repository: ghcr.io/thedevminertv/vldchat
+  pullPolicy: Always
+  tag: "1.0.0"
+
+replicas: 1
+
+service:
+  port: 80
+  host: vldchat.devminer.xyz
+  ssl:
+    enabled: true
+    port: 443
+    issuer:
+      name: letsencrypt
+      kind: ClusterIssuer
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 32Mi
+  requests:
+    cpu: 50m
+    memory: 16Mi
