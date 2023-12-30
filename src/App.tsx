@@ -53,7 +53,7 @@ function App() {
 
 							messages[1]((msgs) => [
 								...msgs,
-								{ timestamp: Date.now(), content: msg.content },
+								{ fromUs: false, timestamp: Date.now(), content: msg.content },
 							]);
 
 							return new Map(prev).set(msg.sender, messages);
@@ -171,7 +171,7 @@ function App() {
 
 									messages[1]((msgs) => [
 										...msgs,
-										{ timestamp: Date.now(), content },
+										{ fromUs: true, timestamp: Date.now(), content },
 									]);
 
 									return new Map(prev).set(target, messages);

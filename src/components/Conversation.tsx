@@ -6,5 +6,13 @@ export const Conversation = ({
 }: {
 	conversation: Accessor<Message[]>;
 }) => {
-	return <For each={conversation()}>{(msg) => <div>{msg.content}</div>}</For>;
+	return (
+		<For each={conversation()}>
+			{(msg) => (
+				<div>
+					{msg.fromUs ? "⬅️" : "➡️"}: {msg.content}
+				</div>
+			)}
+		</For>
+	);
 };
