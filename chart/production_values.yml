@@ -1,7 +1,7 @@
 image:
   repository: ghcr.io/thedevminertv/vldchat
   pullPolicy: Always
-  tag: "1.0.2"
+  tag: "1.1.0"
 
 replicas: 1
 
