@@ -76,7 +76,7 @@ export const VEILID_CORE_CONFIG = {
 			max_find_node_count: 20,
 			resolve_node_timeout_ms: 10_000,
 			resolve_node_count: 1,
-			resolve_node_fanout: 4,
+			resolve_node_fanout: 32,
 			get_value_timeout_ms: 10_000,
 			get_value_count: 3,
 			get_value_fanout: 4,
