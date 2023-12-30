@@ -57,7 +57,7 @@ export const VEILID_CORE_CONFIG = {
 				// FIXME: Commented out until they have a TLS certificate
 				// "wss://bootstrap.veilid.net:5150/ws",
 
-				"wss://bootstrap.hamade.chat:5150/ws",
+				"wss://bootstrap.hamabe.chat:5150/ws",
 			],
 			limit_over_attached: 128,
 			limit_fully_attached: 64,
