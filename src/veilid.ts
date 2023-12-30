@@ -51,10 +51,9 @@ export const VEILID_CORE_CONFIG = {
 			node_id: [],
 			node_id_secret: [],
 			bootstrap: [
-				// "ws://vld.devminer.xyz:5150/ws",
+				// Proxies to bootstrap.veilid.net to get WSS
 				"wss://vld.devminer.xyz:5150/ws",
 
-				// "ws://bootstrap.veilid.net:5150/ws",
 				// FIXME: Commented out until they have a TLS certificate
 				// "wss://bootstrap.veilid.net:5150/ws",
 			],
