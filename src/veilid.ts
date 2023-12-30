@@ -127,15 +127,15 @@ export const VEILID_CORE_CONFIG = {
 				max_connections: 0,
 			},
 			ws: {
-				connect: true,
-				listen: true,
+				connect: false,
+				listen: false,
 				listen_address: ":5150",
 				max_connections: 16,
 				path: "ws",
 			},
 			wss: {
 				connect: true,
-				listen: true,
+				listen: false,
 				listen_address: "",
 				max_connections: 16,
 				path: "ws",
