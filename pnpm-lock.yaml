@@ -14,7 +14,7 @@ importers:
     devDependencies:
       typescript:
         specifier: ^5.2.2
-        version: 5.4.3
+        version: 5.8.3
       vite:
         specifier: ^5.0.8
         version: 5.2.9
@@ -634,8 +634,8 @@ packages:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
 
-  typescript@5.4.3:
-    resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
+  typescript@5.8.3:
+    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -1236,7 +1236,7 @@ snapshots:
 
   to-fast-properties@2.0.0: {}
 
-  typescript@5.4.3: {}
+  typescript@5.8.3: {}
 
   update-browserslist-db@1.0.13(browserslist@4.23.0):
     dependencies:
